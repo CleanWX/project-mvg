@@ -91,7 +91,7 @@ export default function App() {
   const handleBlockDate = (date: Date) => {
     // Check if date is already blocked
     const isAlreadyBlocked = blockedDates.some(
-      (blockedDate) =>
+      (blockedDate: { getDate: () => number; getMonth: () => number; getFullYear: () => number; }) =>
         blockedDate.getDate() === date.getDate() &&
         blockedDate.getMonth() === date.getMonth() &&
         blockedDate.getFullYear() === date.getFullYear()
@@ -105,7 +105,7 @@ export default function App() {
   const handleUnblockDate = (dateToRemove: Date) => {
     setBlockedDates(
       blockedDates.filter(
-        (date) =>
+        (date: { getDate: () => number; getMonth: () => number; getFullYear: () => number; }) =>
           !(
             date.getDate() === dateToRemove.getDate() &&
             date.getMonth() === dateToRemove.getMonth() &&
@@ -146,8 +146,8 @@ export default function App() {
   const allUnavailableDates = [
     ...blockedDates,
     ...bookings
-      .filter((b) => b.status === "approved")
-      .map((b) => b.date),
+      .filter((b: { status: string; }) => b.status === "approved")
+      .map((b: { date: any; }) => b.date),
   ];
 
   return (
@@ -236,7 +236,7 @@ export default function App() {
                 type="password"
                 placeholder="Enter admin password"
                 value={loginPassword}
-                onChange={(e) => {
+                onChange={(e: { target: { value: any; }; }) => {
                   setLoginPassword(e.target.value);
                   setLoginError("");
                 }}
