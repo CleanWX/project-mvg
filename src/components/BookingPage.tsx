@@ -226,6 +226,7 @@ export default function BookingPage({
               <Input
                 id="name"
                 type="text"
+                autoComplete="given-name"
                 placeholder="Enter your name"
                 value={formData.name}
                 onChange={(e) =>
@@ -242,6 +243,7 @@ export default function BookingPage({
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={(e) =>
