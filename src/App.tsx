@@ -162,7 +162,7 @@ export default function App() {
               className="rounded-md"
             >
               <Calendar className="w-4 h-4 mr-2" />
-              Book a Day
+              Rezervēt dienu
             </Button>
             <Button
               variant={currentView === "admin" ? "default" : "ghost"}
@@ -170,7 +170,7 @@ export default function App() {
               className="rounded-md"
             >
               <Shield className="w-4 h-4 mr-2" />
-              Admin Panel
+              Administratora panelis
             </Button>
           </div>
 
@@ -194,7 +194,7 @@ export default function App() {
             <div className="text-center mb-12">
               <h1 className="text-slate-900 mb-2">Book a Day</h1>
               <p className="text-slate-600">
-                Select an available date and fill in your details to book
+                Izvēlieties pieejamu datumu un aizpildiet savus datus, lai rezervētu
               </p>
             </div>
 
@@ -221,16 +221,16 @@ export default function App() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Shield className="w-5 h-5" />
-              Admin Login
+              Administratora pieslēgšanās
             </DialogTitle>
             <DialogDescription>
-              Enter the admin password to access the admin panel.
+              Ievadiet administratora paroli, lai piekļūtu administratora panelim
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleLogin} className="space-y-4 pt-4">
             <div>
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Parole</Label>
               <Input
                 id="password"
                 type="password"
@@ -247,13 +247,13 @@ export default function App() {
                 <p className="text-sm text-red-600 mt-2">{loginError}</p>
               )}
               <p className="text-xs text-slate-500 mt-2">
-                Demo password: <code className="bg-slate-100 px-1 py-0.5 rounded">admin123</code>
+                Demo pass: <code className="bg-slate-100 px-1 py-0.5 rounded">admin123</code>
               </p>
             </div>
 
             <div className="flex gap-3 pt-2">
               <Button type="submit" className="flex-1">
-                Login
+                Pieslēgties
               </Button>
               <Button
                 type="button"
@@ -265,7 +265,7 @@ export default function App() {
                 }}
                 className="flex-1"
               >
-                Cancel
+                Atcelt
               </Button>
             </div>
           </form>

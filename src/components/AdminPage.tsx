@@ -96,9 +96,9 @@ export default function AdminPage({
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-slate-900 mb-2">Admin Dashboard</h1>
+        <h1 className="text-slate-900 mb-2">Administrators</h1>
         <p className="text-slate-600">
-          Review and manage booking requests
+          Apskatit un managet rezervācijas pieprasījumus un bloķēt datumus
         </p>
       </div>
 
@@ -147,7 +147,7 @@ export default function AdminPage({
         <Card className="p-6 shadow-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-600">Blocked Dates</p>
+              <p className="text-sm text-slate-600">Blocketie Datumi</p>
               <p className="text-slate-900 mt-1">{blockedDates.length}</p>
             </div>
             <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
@@ -161,9 +161,9 @@ export default function AdminPage({
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 shadow-lg">
           <div className="mb-4">
-            <h2 className="text-slate-900 mb-2">Block Dates</h2>
+            <h2 className="text-slate-900 mb-2">Bloketie Datumi</h2>
             <p className="text-sm text-slate-600">
-              Select dates to prevent bookings
+              Izvēlieties datumus, kurus vēlaties bloķēt no rezervēšanas
             </p>
           </div>
           <CalendarComponent
@@ -184,22 +184,22 @@ export default function AdminPage({
             className="w-full mt-4"
           >
             <Ban className="w-4 h-4 mr-2" />
-            Block Selected Date
+            Bloket izvēlēto datumu
           </Button>
         </Card>
 
         <Card className="p-6 shadow-lg">
           <div className="mb-4">
-            <h2 className="text-slate-900 mb-2">Currently Blocked Dates</h2>
+            <h2 className="text-slate-900 mb-2">Sobrid nobloketi datumi</h2>
             <p className="text-sm text-slate-600">
-              Dates that are blocked from booking
+              Datumi kas ir bloķēti no rezervēšanas
             </p>
           </div>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {blockedDates.length === 0 ? (
               <div className="text-center py-8 text-slate-500">
                 <Ban className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                <p className="text-sm">No dates are currently blocked</p>
+                <p className="text-sm">Neviens datums sobrid nav noblokets</p>
               </div>
             ) : (
               blockedDates
@@ -238,24 +238,24 @@ export default function AdminPage({
       {/* Pending Requests */}
       <Card className="shadow-lg">
         <div className="p-6 border-b">
-          <h2 className="text-slate-900">Pending Requests</h2>
+          <h2 className="text-slate-900">Neapstrādātie pieprasījumi</h2>
         </div>
         <div className="overflow-x-auto">
           {pendingBookings.length === 0 ? (
             <div className="p-12 text-center text-slate-500">
               <Calendar className="w-12 h-12 mx-auto mb-4 opacity-20" />
-              <p>No pending booking requests</p>
+              <p>Nav neapstrādāto pieprasījumu</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Additional Info</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Datums</TableHead>
+                  <TableHead>Vards</TableHead>
+                  <TableHead>Epasts</TableHead>
+                  <TableHead>Papildu informacija</TableHead>
+                  <TableHead>Iesniegti</TableHead>
+                  <TableHead className="text-right">Darbības</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -311,7 +311,7 @@ export default function AdminPage({
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <Check className="w-4 h-4 mr-1" />
-                          Approve
+                          Apstiprinat
                         </Button>
                         <Button
                           size="sm"
@@ -319,7 +319,7 @@ export default function AdminPage({
                           onClick={() => handleAction(booking, "decline")}
                         >
                           <X className="w-4 h-4 mr-1" />
-                          Decline
+                          Atteikt
                         </Button>
                       </div>
                     </TableCell>
@@ -334,22 +334,22 @@ export default function AdminPage({
       {/* Processed Requests */}
       <Card className="shadow-lg">
         <div className="p-6 border-b">
-          <h2 className="text-slate-900">Processed Requests</h2>
+          <h2 className="text-slate-900">Apstrādātie pieprasījumi</h2>
         </div>
         <div className="overflow-x-auto">
           {processedBookings.length === 0 ? (
             <div className="p-12 text-center text-slate-500">
-              <p>No processed requests yet</p>
+              <p>Vēl nav apstrādātu pieprasījumu</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
+                  <TableHead>Datumi</TableHead>
+                  <TableHead>Vards</TableHead>
+                  <TableHead>Epasts</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Submitted</TableHead>
+                  <TableHead>Iesniegtie</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -394,7 +394,7 @@ export default function AdminPage({
             <AlertDialogDescription>
               {actionType === "approve" ? (
                 <>
-                  Are you sure you want to approve this booking for{" "}
+                  Vai tiešām vēlaties apstiprināt šo rezervāciju priekš{" "}
                   <span className="text-slate-900">
                     {selectedBooking?.name}
                   </span>{" "}
@@ -411,7 +411,7 @@ export default function AdminPage({
                 </>
               ) : (
                 <>
-                  Are you sure you want to decline this booking for{" "}
+                  Vai tiešām vēlaties atteikt šo rezervāciju priekš{" "}
                   <span className="text-slate-900">
                     {selectedBooking?.name}
                   </span>
@@ -421,7 +421,7 @@ export default function AdminPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelAction}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={cancelAction}>Atteikt</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmAction}
               className={

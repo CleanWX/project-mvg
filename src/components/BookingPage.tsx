@@ -186,11 +186,11 @@ export default function BookingPage({
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-green-200 rounded"></div>
-                <span className="text-slate-600">Available</span>
+                <span className="text-slate-600">Pieejams</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-red-200 rounded"></div>
-                <span className="text-slate-600">Unavailable</span>
+                <span className="text-slate-600">Nav pieejams</span>
               </div>
             </div>
           </div>
@@ -200,14 +200,14 @@ export default function BookingPage({
         <Card className="p-6 shadow-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <h2 className="text-slate-900 mb-4">Your Details</h2>
+              <h2 className="text-slate-900 mb-4">Jūsu dati</h2>
             </div>
 
             {/* Selected Date Display */}
             {selectedDate && (
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-900">
-                  Selected Date:{" "}
+                  Izvēlētais datums:{" "}
                   <span>
                     {selectedDate.toLocaleDateString("en-US", {
                       weekday: "long",
@@ -222,7 +222,7 @@ export default function BookingPage({
 
             {/* Name Field */}
             <div>
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">Vards *</Label>
               <Input
                 id="name"
                 type="text"
@@ -239,7 +239,7 @@ export default function BookingPage({
 
             {/* Email Field */}
             <div>
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">Epasts *</Label>
               <Input
                 id="email"
                 type="email"
@@ -256,7 +256,7 @@ export default function BookingPage({
 
             {/* Additional Info Field */}
             <div>
-              <Label htmlFor="info">Additional Information</Label>
+              <Label htmlFor="info">Papildus informācija</Label>
               <Textarea
                 id="info"
                 placeholder="Any special requests or notes..."
@@ -279,7 +279,7 @@ export default function BookingPage({
                 className="flex-1 shadow-md"
                 disabled={!selectedDate || !formData.name || !formData.email}
               >
-                Book Now
+                Rezervēt
               </Button>
               <Button
                 type="button"
@@ -287,7 +287,7 @@ export default function BookingPage({
                 onClick={handleReset}
                 className="flex-1"
               >
-                Reset
+                Notīrīt
               </Button>
             </div>
           </form>
@@ -312,7 +312,7 @@ export default function BookingPage({
                   <path d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
-              <span>Booking Submitted!</span>
+              <span>Rezervācija iesniegta!</span>
             </DialogTitle>
             <DialogDescription className="pt-4">
               Your booking request for{" "}
@@ -322,8 +322,8 @@ export default function BookingPage({
                 month: "long",
                 day: "numeric",
               })}{" "}
-              has been submitted successfully. You'll receive a confirmation
-              email at {formData.email} once the admin reviews your request.
+              Veiksmīgi iesniegts. Jūs saņemsiet apstiprinājumu uz savu
+              epastu {formData.email} kad administrators pārskatīs jūsu pieprasījumu.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end pt-4">
