@@ -21,7 +21,7 @@ interface BookingPageProps {
     name: string;
     email: string;
     additionalInfo: string;
-  }) => void;
+  }) => Promise<void>;
 }
 
 export default function BookingPage({
@@ -31,6 +31,8 @@ export default function BookingPage({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -49,7 +51,7 @@ export default function BookingPage({
 
   const isWeekend = (date: Date) => {
     const day = date.getDay();
-    return day === 0 || day === 6; // Saturday = 6, Sunday = 0
+    return day === 0 || day === 6;
   };
 
   const handlePreviousMonth = () => {
@@ -64,26 +66,32 @@ export default function BookingPage({
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedDate && formData.name && formData.email) {
-      onBookingSubmit({
+    if (!selectedDate || !formData.name || !formData.email) return;
+
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      await onBookingSubmit({
         date: selectedDate,
         name: formData.name,
         email: formData.email,
         additionalInfo: formData.additionalInfo,
       });
       setShowConfirmation(true);
+    } catch (err: any) {
+      setSubmitError(err.message || "Failed to submit booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleReset = () => {
     setSelectedDate(undefined);
-    setFormData({
-      name: "",
-      email: "",
-      additionalInfo: "",
-    });
+    setSubmitError("");
+    setFormData({ name: "", email: "", additionalInfo: "" });
   };
 
   const handleDialogClose = () => {
@@ -97,66 +105,27 @@ export default function BookingPage({
         {/* Calendar Section */}
         <Card className="p-6 shadow-lg">
           <div className="space-y-6">
-            {/* Month Navigation */}
             <div className="flex items-center justify-between">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePreviousMonth}
-                className="rounded-full"
-              >
+              <Button variant="outline" size="icon" onClick={handlePreviousMonth} className="rounded-full">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <span className="text-slate-900">
-                {currentMonth.toLocaleDateString("en-US", {
-                  month: "long",
-                  year: "numeric",
-                })}
+                {currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleNextMonth}
-                className="rounded-full"
-              >
+              <Button variant="outline" size="icon" onClick={handleNextMonth} className="rounded-full">
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
 
-            {/* Calendar */}
             <div className="calendar-container">
               <style>{`
-                .calendar-container .rdp-day_button {
-                  border-radius: 8px;
-                  transition: all 0.2s;
-                }
-                .calendar-container .rdp-day_button:hover {
-                  transform: scale(1.05);
-                }
-                .day-available .rdp-day_button {
-                  background-color: #dcfce7;
-                  color: #166534;
-                }
-                .day-available .rdp-day_button:hover {
-                  background-color: #bbf7d0;
-                }
-                .day-unavailable .rdp-day_button {
-                  background-color: #fee2e2;
-                  color: #991b1b;
-                  cursor: not-allowed;
-                }
-                .day-unavailable .rdp-day_button:hover {
-                  background-color: #fee2e2;
-                  transform: scale(1);
-                }
-                .day-hidden {
-                  opacity: 0.3;
-                  pointer-events: none;
-                }
-                .rdp-day_selected .rdp-day_button {
-                  background-color: #3b82f6 !important;
-                  color: white !important;
-                }
+                .calendar-container .rdp-day_button { border-radius: 8px; transition: all 0.2s; }
+                .calendar-container .rdp-day_button:hover { transform: scale(1.05); }
+                .day-available .rdp-day_button { background-color: #dcfce7; color: #166534; }
+                .day-available .rdp-day_button:hover { background-color: #bbf7d0; }
+                .day-unavailable .rdp-day_button { background-color: #fee2e2; color: #991b1b; cursor: not-allowed; }
+                .day-unavailable .rdp-day_button:hover { background-color: #fee2e2; transform: scale(1); }
+                .rdp-day_selected .rdp-day_button { background-color: #3b82f6 !important; color: white !important; }
               `}</style>
               <Calendar
                 mode="single"
@@ -170,10 +139,8 @@ export default function BookingPage({
                   date < new Date(new Date().setHours(0, 0, 0, 0))
                 }
                 modifiers={{
-                  available: (date) =>
-                    !isDateUnavailable(date) && !isWeekend(date),
-                  unavailable: (date) =>
-                    isDateUnavailable(date) || isWeekend(date),
+                  available: (date) => !isDateUnavailable(date) && !isWeekend(date),
+                  unavailable: (date) => isDateUnavailable(date) || isWeekend(date),
                 }}
                 modifiersClassNames={{
                   available: "day-available",
@@ -182,7 +149,6 @@ export default function BookingPage({
               />
             </div>
 
-            {/* Legend */}
             <div className="flex gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-green-200 rounded"></div>
@@ -203,24 +169,25 @@ export default function BookingPage({
               <h2 className="text-slate-900 mb-4">Jūsu dati</h2>
             </div>
 
-            {/* Selected Date Display */}
             {selectedDate && (
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-900">
                   Izvēlētais datums:{" "}
                   <span>
                     {selectedDate.toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
+                      weekday: "long", year: "numeric", month: "long", day: "numeric",
                     })}
                   </span>
                 </p>
               </div>
             )}
 
-            {/* Name Field */}
+            {submitError && (
+              <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                <p className="text-sm text-red-800">{submitError}</p>
+              </div>
+            )}
+
             <div>
               <Label htmlFor="name">Vards *</Label>
               <Input
@@ -229,15 +196,12 @@ export default function BookingPage({
                 autoComplete="given-name"
                 placeholder="Enter your name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
                 className="mt-1"
               />
             </div>
 
-            {/* Email Field */}
             <div>
               <Label htmlFor="email">Epasts *</Label>
               <Input
@@ -246,47 +210,33 @@ export default function BookingPage({
                 autoComplete="email"
                 placeholder="Enter your email"
                 value={formData.email}
-                onChange={(e) =>
-                  setFormData({ ...formData, email: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
                 className="mt-1"
               />
             </div>
 
-            {/* Additional Info Field */}
             <div>
               <Label htmlFor="info">Papildus informācija</Label>
               <Textarea
                 id="info"
                 placeholder="Any special requests or notes..."
                 value={formData.additionalInfo}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    additionalInfo: e.target.value,
-                  })
-                }
+                onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
                 className="mt-1 resize-none"
                 rows={4}
               />
             </div>
 
-            {/* Buttons */}
             <div className="flex gap-3 pt-4">
               <Button
                 type="submit"
                 className="flex-1 shadow-md"
-                disabled={!selectedDate || !formData.name || !formData.email}
+                disabled={!selectedDate || !formData.name || !formData.email || isSubmitting}
               >
-                Rezervēt
+                {isSubmitting ? "Nosūta..." : "Rezervēt"}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReset}
-                className="flex-1"
-              >
+              <Button type="button" variant="outline" onClick={handleReset} className="flex-1">
                 Notīrīt
               </Button>
             </div>
@@ -300,15 +250,7 @@ export default function BookingPage({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-green-600"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                <svg className="w-6 h-6 text-green-600" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
                   <path d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
@@ -317,13 +259,9 @@ export default function BookingPage({
             <DialogDescription className="pt-4">
               Your booking request for{" "}
               {selectedDate?.toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
+                weekday: "long", year: "numeric", month: "long", day: "numeric",
               })}{" "}
-              Veiksmīgi iesniegts. Jūs saņemsiet apstiprinājumu uz savu
-              epastu {formData.email} kad administrators pārskatīs jūsu pieprasījumu.
+              has been submitted. You will receive a confirmation to {formData.email} once the admin reviews your request.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end pt-4">

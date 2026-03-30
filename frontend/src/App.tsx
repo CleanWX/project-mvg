@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BookingPage from "./components/BookingPage";
-import AdminPage, { Booking } from "./components/AdminPage";
+import AdminPage from "./components/AdminPage";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import { Label } from "./components/ui/label";
@@ -12,107 +12,49 @@ import {
   DialogTitle,
 } from "./components/ui/dialog";
 import { Calendar, Shield, LogOut } from "lucide-react";
+import { api } from "./api";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<"booking" | "admin">("booking");
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [unavailableDates, setUnavailableDates] = useState<Date[]>([]);
 
-  // Simple password (in production, this should use proper authentication)
-  const ADMIN_PASSWORD = "admin123";
+  // Load unavailable dates from backend on mount
+  useEffect(() => {
+    api.bookings.unavailable().then(res => {
+      setUnavailableDates(res.unavailable.map(d => new Date(d + 'T00:00:00')));
+    }).catch(err => console.error('Failed to load unavailable dates:', err));
+  }, []);
 
-  const [bookings, setBookings] = useState<Booking[]>([
-    // Mock data for demonstration
-    {
-      id: "1",
-      date: new Date(2025, 9, 15),
-      name: "John Doe",
-      email: "john@example.com",
-      additionalInfo: "Need access in the morning",
-      status: "pending",
-      submittedAt: new Date(2025, 9, 10, 14, 30),
-    },
-    {
-      id: "2",
-      date: new Date(2025, 9, 22),
-      name: "Jane Smith",
-      email: "jane@example.com",
-      additionalInfo: "",
-      status: "approved",
-      submittedAt: new Date(2025, 9, 8, 9, 15),
-    },
-  ]);
+  // Check if already logged in
+  useEffect(() => {
+    api.auth.check().then(res => {
+      if (res.authenticated) {
+        setIsAdminAuthenticated(true);
+      }
+    }).catch(() => {});
+  }, []);
 
-  // Dates manually blocked by admin
-  const [blockedDates, setBlockedDates] = useState<Date[]>([
-    new Date(2025, 9, 20),
-    new Date(2025, 9, 25),
-    new Date(2025, 10, 5),
-    new Date(2025, 10, 12),
-  ]);
-
-  const handleBookingSubmit = (booking: {
+  const handleBookingSubmit = async (booking: {
     date: Date;
     name: string;
     email: string;
     additionalInfo: string;
   }) => {
-    const newBooking: Booking = {
-      id: Date.now().toString(),
-      date: booking.date,
+    await api.bookings.create({
+      date: booking.date.toISOString().split('T')[0],
       name: booking.name,
       email: booking.email,
       additionalInfo: booking.additionalInfo,
-      status: "pending",
-      submittedAt: new Date(),
-    };
-
-    setBookings([...bookings, newBooking]);
-  };
-
-  const handleApprove = (id: string) => {
-    setBookings(
-      bookings.map((booking) =>
-        booking.id === id ? { ...booking, status: "approved" as const } : booking
-      )
-    );
-  };
-
-  const handleDecline = (id: string) => {
-    setBookings(
-      bookings.map((booking) =>
-        booking.id === id ? { ...booking, status: "declined" as const } : booking
-      )
-    );
-  };
-
-  const handleBlockDate = (date: Date) => {
-    // Check if date is already blocked
-    const isAlreadyBlocked = blockedDates.some(
-      (blockedDate: { getDate: () => number; getMonth: () => number; getFullYear: () => number; }) =>
-        blockedDate.getDate() === date.getDate() &&
-        blockedDate.getMonth() === date.getMonth() &&
-        blockedDate.getFullYear() === date.getFullYear()
-    );
-
-    if (!isAlreadyBlocked) {
-      setBlockedDates([...blockedDates, date]);
-    }
-  };
-
-  const handleUnblockDate = (dateToRemove: Date) => {
-    setBlockedDates(
-      blockedDates.filter(
-        (date: { getDate: () => number; getMonth: () => number; getFullYear: () => number; }) =>
-          !(
-            date.getDate() === dateToRemove.getDate() &&
-            date.getMonth() === dateToRemove.getMonth() &&
-            date.getFullYear() === dateToRemove.getFullYear()
-          )
-      )
-    );
+    });
+    // Refresh unavailable dates after new booking
+    api.bookings.unavailable().then(res => {
+      setUnavailableDates(res.unavailable.map(d => new Date(d + 'T00:00:00')));
+    });
   };
 
   const handleAdminClick = () => {
@@ -123,32 +65,27 @@ export default function App() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (loginPassword === ADMIN_PASSWORD) {
+    try {
+      await api.auth.login(loginUsername, loginPassword);
       setIsAdminAuthenticated(true);
       setCurrentView("admin");
       setShowLoginDialog(false);
+      setLoginUsername("");
       setLoginPassword("");
       setLoginError("");
-    } else {
-      setLoginError("Incorrect password. Please try again.");
+    } catch (err: any) {
+      setLoginError("Incorrect credentials. Please try again.");
       setLoginPassword("");
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await api.auth.logout();
     setIsAdminAuthenticated(false);
     setCurrentView("booking");
   };
-
-  // Get all unavailable dates (blocked by admin + approved bookings)
-  const allUnavailableDates = [
-    ...blockedDates,
-    ...bookings
-      .filter((b: { status: string; }) => b.status === "approved")
-      .map((b: { date: any; }) => b.date),
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
@@ -174,7 +111,6 @@ export default function App() {
             </Button>
           </div>
 
-          {/* Logout button when authenticated */}
           {isAdminAuthenticated && (
             <Button
               variant="outline"
@@ -190,28 +126,19 @@ export default function App() {
         {/* Content */}
         {currentView === "booking" ? (
           <div>
-            {/* Header */}
             <div className="text-center mb-12">
               <h1 className="text-slate-900 mb-2">Book a Day</h1>
               <p className="text-slate-600">
                 Izvēlieties pieejamu datumu un aizpildiet savus datus, lai rezervētu
               </p>
             </div>
-
             <BookingPage
-              unavailableDates={allUnavailableDates}
+              unavailableDates={unavailableDates}
               onBookingSubmit={handleBookingSubmit}
             />
           </div>
         ) : (
-          <AdminPage
-            bookings={bookings}
-            blockedDates={blockedDates}
-            onApprove={handleApprove}
-            onDecline={handleDecline}
-            onBlockDate={handleBlockDate}
-            onUnblockDate={handleUnblockDate}
-          />
+          <AdminPage />
         )}
       </div>
 
@@ -224,11 +151,26 @@ export default function App() {
               Administratora pieslēgšanās
             </DialogTitle>
             <DialogDescription>
-              Ievadiet administratora paroli, lai piekļūtu administratora panelim
+              Ievadiet administratora datus, lai piekļūtu administratora panelim
             </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleLogin} className="space-y-4 pt-4">
+            <div>
+              <Label htmlFor="username">Lietotājvārds</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Enter username"
+                value={loginUsername}
+                onChange={(e: { target: { value: any; }; }) => {
+                  setLoginUsername(e.target.value);
+                  setLoginError("");
+                }}
+                className="mt-1"
+                autoFocus
+              />
+            </div>
             <div>
               <Label htmlFor="password">Parole</Label>
               <Input
@@ -241,14 +183,10 @@ export default function App() {
                   setLoginError("");
                 }}
                 className="mt-1"
-                autoFocus
               />
               {loginError && (
                 <p className="text-sm text-red-600 mt-2">{loginError}</p>
               )}
-              <p className="text-xs text-slate-500 mt-2">
-                Demo pass: <code className="bg-slate-100 px-1 py-0.5 rounded">admin123</code>
-              </p>
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -260,6 +198,7 @@ export default function App() {
                 variant="outline"
                 onClick={() => {
                   setShowLoginDialog(false);
+                  setLoginUsername("");
                   setLoginPassword("");
                   setLoginError("");
                 }}
