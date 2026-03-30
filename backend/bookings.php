@@ -46,7 +46,7 @@ if ($action === 'create' && $method === 'POST') {
     $db = get_db();
 
     // Check if date is blocked
-    $stmt = $db->prepare('SELECT id FROM blocked_dates WHERE blocked_date = ?');
+    $stmt = $db->prepare('SELECT id FROM gp_blocked_dates WHERE blocked_date = ?');
     $stmt->execute([$date]);
     if ($stmt->fetch()) {
         json_error('This date is not available for booking');
@@ -54,7 +54,7 @@ if ($action === 'create' && $method === 'POST') {
 
     // Check if date already has an approved booking
     $stmt = $db->prepare(
-        "SELECT id FROM bookings WHERE booking_date = ? AND status = 'approved' AND is_archived = 0"
+        "SELECT id FROM gp_bookings WHERE booking_date = ? AND status = 'approved' AND is_archived = 0"
     );
     $stmt->execute([$date]);
     if ($stmt->fetch()) {
@@ -62,7 +62,7 @@ if ($action === 'create' && $method === 'POST') {
     }
 
     $stmt = $db->prepare(
-        'INSERT INTO bookings (booking_date, name, email, additional_info)
+        'INSERT INTO gp_bookings (booking_date, name, email, additional_info)
          VALUES (?, ?, ?, ?)'
     );
     $stmt->execute([$date, $name, $email, $additional_info]);
@@ -78,11 +78,11 @@ if ($action === 'unavailable' && $method === 'GET') {
     $db = get_db();
 
     // Blocked by admin
-    $blocked = $db->query('SELECT blocked_date FROM blocked_dates')->fetchAll(PDO::FETCH_COLUMN);
+    $blocked = $db->query('SELECT blocked_date FROM gp_blocked_dates')->fetchAll(PDO::FETCH_COLUMN);
 
     // Approved bookings
     $approved = $db->query(
-        "SELECT booking_date FROM bookings WHERE status = 'approved' AND is_archived = 0"
+        "SELECT booking_date FROM gp_bookings WHERE status = 'approved' AND is_archived = 0"
     )->fetchAll(PDO::FETCH_COLUMN);
 
     $all = array_values(array_unique(array_merge($blocked, $approved)));
@@ -124,7 +124,7 @@ if ($action === 'list' && $method === 'GET') {
     $allowed_sort = ['booking_date', 'name', 'email', 'status', 'submitted_at'];
     if (!in_array($sort_col, $allowed_sort, true)) $sort_col = 'submitted_at';
 
-    $sql = 'SELECT * FROM bookings';
+    $sql = 'SELECT * FROM gp_bookings';
     if ($where) $sql .= ' WHERE ' . implode(' AND ', $where);
     $sql .= " ORDER BY $sort_col $sort_dir";
 
@@ -152,7 +152,7 @@ if ($action === 'update' && $method === 'PUT') {
 
     if ($id <= 0) json_error('Invalid id');
 
-    $stmt = $db->prepare('SELECT id FROM bookings WHERE id = ?');
+    $stmt = $db->prepare('SELECT id FROM gp_bookings WHERE id = ?');
     $stmt->execute([$id]);
     if (!$stmt->fetch()) json_error('Booking not found', 404);
 
@@ -180,7 +180,7 @@ if ($action === 'update' && $method === 'PUT') {
     if (empty($fields)) json_error('Nothing to update');
 
     $params[] = $id;
-    $stmt = $db->prepare('UPDATE bookings SET ' . implode(', ', $fields) . ' WHERE id = ?');
+    $stmt = $db->prepare('UPDATE gp_bookings SET ' . implode(', ', $fields) . ' WHERE id = ?');
     $stmt->execute($params);
 
     json_response(['success' => true]);
@@ -195,7 +195,7 @@ if ($action === 'delete' && $method === 'DELETE') {
     if ($id <= 0) json_error('Invalid id');
 
     $db   = get_db();
-    $stmt = $db->prepare('DELETE FROM bookings WHERE id = ?');
+    $stmt = $db->prepare('DELETE FROM gp_bookings WHERE id = ?');
     $stmt->execute([$id]);
 
     if ($stmt->rowCount() === 0) json_error('Booking not found', 404);

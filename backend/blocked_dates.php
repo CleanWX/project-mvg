@@ -18,7 +18,7 @@ if ($action === 'list' && $method === 'GET') {
     require_auth();
     $db   = get_db();
     $rows = $db->query(
-        'SELECT id, blocked_date, reason, created_at FROM blocked_dates ORDER BY blocked_date ASC'
+        'SELECT id, blocked_date, reason, created_at FROM gp_blocked_dates ORDER BY blocked_date ASC'
     )->fetchAll();
     json_response(['blocked_dates' => $rows]);
 }
@@ -50,7 +50,7 @@ if ($action === 'unblock' && $method === 'DELETE') {
     if ($id <= 0) json_error('Invalid id');
 
     $db   = get_db();
-    $stmt = $db->prepare('DELETE FROM blocked_dates WHERE id = ?');
+    $stmt = $db->prepare('DELETE FROM gp_blocked_dates WHERE id = ?');
     $stmt->execute([$id]);
 
     if ($stmt->rowCount() === 0) json_error('Blocked date not found', 404);

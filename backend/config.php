@@ -6,9 +6,9 @@
 // =============================================
 
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'labbutibas_diena');
-define('DB_USER', 'root');       // change if needed
-define('DB_PASS', '');           // change if needed
+define('DB_NAME', 'u547027111_mvg');
+define('DB_USER', 'u547027111_mvg');       // change if needed
+define('DB_PASS', 'MVGskola1');           // change if needed
 define('DB_CHARSET', 'utf8mb4');
 
 // ---- CORS (allow your React dev server) ----

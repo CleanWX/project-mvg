@@ -12,7 +12,7 @@ USE labbutibas_diena;
 -- =============================================
 -- Table: admins
 -- =============================================
-CREATE TABLE IF NOT EXISTS admins (
+CREATE TABLE IF NOT EXISTS gp_admins (
   id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(100) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
@@ -26,7 +26,7 @@ VALUES ('admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi')
 -- =============================================
 -- Table: blocked_dates
 -- =============================================
-CREATE TABLE IF NOT EXISTS blocked_dates (
+CREATE TABLE IF NOT EXISTS gp_blocked_dates (
   id INT AUTO_INCREMENT PRIMARY KEY,
   blocked_date DATE NOT NULL UNIQUE,
   reason VARCHAR(255) DEFAULT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS blocked_dates (
 -- =============================================
 -- Table: bookings
 -- =============================================
-CREATE TABLE IF NOT EXISTS bookings (
+CREATE TABLE IF NOT EXISTS gp_bookings (
   id INT AUTO_INCREMENT PRIMARY KEY,
   booking_date DATE NOT NULL,
   name VARCHAR(150) NOT NULL,

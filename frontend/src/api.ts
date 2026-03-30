@@ -6,7 +6,7 @@
 // then BASE_URL = 'http://localhost/backend'
 // =============================================
 
-const BASE_URL = 'http://localhost/backend';
+const BASE_URL = 'http://77.37.34.2/gp/backend';
 
 // ---- helpers ----
 async function req<T>(

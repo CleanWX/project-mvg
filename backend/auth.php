@@ -31,7 +31,7 @@ if ($action === 'login' && $method === 'POST') {
     }
 
     $db = get_db();
-    $stmt = $db->prepare('SELECT id, username, password_hash FROM admins WHERE username = ?');
+    $stmt = $db->prepare('SELECT id, username, password_hash FROM gp_admins WHERE username = ?');
     $stmt->execute([$username]);
     $admin = $stmt->fetch();
 
