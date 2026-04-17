@@ -15,7 +15,6 @@ This is a mental health day booking system designed for students. It provides:
 ### For Students
 - 📅 **Calendar-based booking** - Easily select your preferred date
 - 🔍 **See available dates** - Unavailable dates are clearly marked
-- ✉️ **Email confirmation** - Receive confirmation of your booking
 - 📝 **Add notes** - Include additional information with your booking
 
 ### For Administrators
